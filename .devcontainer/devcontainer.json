@@ -2,40 +2,56 @@
   "name": "Home Assistant Dev",
   "context": "..",
   "dockerFile": "../Dockerfile.dev",
-  "postCreateCommand": "script/setup",
-  "postStartCommand": "script/bootstrap",
-  "containerEnv": { "DEVCONTAINER": "1" },
-  "appPort": ["8123:8123"],
-  "runArgs": ["-e", "GIT_EDITOR=code --wait"],
+  "containerEnv": {
+    "DEVCONTAINER": "1"
+  },
+  "appPort": [
+    "8123:8123"
+  ],
+  "runArgs": [
+    "-e",
+    "GIT_EDITOR=code --wait"
+  ],
+  "portsAttributes": {
+    "8123": {
+      "label": "HASS",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "root",
   "extensions": [
     "ms-python.vscode-pylance",
     "visualstudioexptteam.vscodeintellicode",
     "redhat.vscode-yaml",
     "esbenp.prettier-vscode",
+    "mhutchie.git-graph",
+    "eamodio.gitlens",
     "GitHub.vscode-pull-request-github"
   ],
   // Please keep this file in sync with settings in home-assistant/.vscode/settings.default.json
   "settings": {
-    "python.pythonPath": "/usr/local/bin/python",
+    "python.pythonPath": "/workspace/container-workspace/venv/bin/python",
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": true,
-    "python.formatting.blackPath": "/usr/local/bin/black",
-    "python.linting.flake8Path": "/usr/local/bin/flake8",
-    "python.linting.pycodestylePath": "/usr/local/bin/pycodestyle",
-    "python.linting.pydocstylePath": "/usr/local/bin/pydocstyle",
-    "python.linting.mypyPath": "/usr/local/bin/mypy",
-    "python.linting.pylintPath": "/usr/local/bin/pylint",
+    "python.formatting.blackPath": "/workspace/container-workspace/venv/bin/black",
+    "python.linting.flake8Path": "/workspace/container-workspace/venv/bin/flake8",
+    "python.linting.pycodestylePath": "/workspace/container-workspace/venv/bin/pycodestyle",
+    "python.linting.pydocstylePath": "/workspace/container-workspace/venv/bin/pydocstyle",
+    "python.linting.mypyPath": "/workspace/container-workspace/venv/bin/mypy",
+    "python.linting.pylintPath": "/workspace/container-workspace/venv/bin/pylint",
     "python.formatting.provider": "black",
-    "python.testing.pytestArgs": ["--no-cov"],
+    "python.testing.pytestArgs": [
+      "--no-cov"
+    ],
     "editor.formatOnPaste": false,
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
     "files.trimTrailingWhitespace": true,
-    "terminal.integrated.profiles.linux": {
-      "zsh": {
-        "path": "/usr/bin/zsh"
-      }
-    },
+    // "terminal.integrated.profiles.linux": {
+    //   "zsh": {
+    //     "path": "/usr/bin/zsh"
+    //   }
+    // },
     "terminal.integrated.defaultProfile.linux": "zsh",
     "yaml.customTags": [
       "!input scalar",
@@ -45,5 +61,17 @@
       "!include_dir_merge_list scalar",
       "!include_dir_merge_named scalar"
     ]
-  }
+  },
+  "containerEnv": {
+    "TZ": "America/New_York"
+  },
+  "postCreateCommand": "script/setup",
+  "postStartCommand": "script/bootstrap",
+  "workspaceFolder": "/workspace/container-workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/host-machine-workspace,type=bind,consistency=cached",
+  "onCreateCommand": "(cp /workspace/host-machine-workspace/.devcontainer/post-create.sh /workspace && chmod +x /workspace/post-create.sh && /workspace/post-create.sh)",
+  "postAttachCommand": "(cd ${containerWorkspaceFolder} && git fetch host -p)",
+  "mounts": [
+    "source=hs-workspace,target=/workspace/container-workspace,type=volume",
+  ]
 }
